@@ -1,0 +1,278 @@
+/**
+ * Cities Data
+ * Defines all cities in the game world with their positions and economy
+ */
+
+const CitiesData = {
+	rivertown: {
+		name: 'Rivertown',
+		position: { x: 100, y: 0, z: 50 },
+		produces: ['grain', 'wool'],
+		consumes: ['iron', 'tools'],
+		description: 'A prosperous farming town by the river',
+		backstory:
+			"Founded centuries ago where the Great River bends, Rivertown grew from a simple fishing village into the breadbasket of the realm. The fertile soil, enriched by seasonal floods, produces golden wheat fields that stretch to the horizon. Shepherds tend vast flocks on the riverside meadows, their wool prized across the land. The town's watermill, built by the legendary engineer Aldric the Clever, grinds grain day and night. However, the soft earth yields no metal, making the townsfolk dependent on iron and tools from distant mountains.",
+		terrain: 'plains',
+		nearbyTerrain: ['river', 'plains'],
+		market: {
+			grain: { price: 5 },
+			wool: { price: 10 },
+			iron: { price: 35 },
+			tools: { price: 60 },
+			wine: { price: 90 },
+			spices: { price: 110 },
+		},
+	},
+	mountainhold: {
+		name: 'Mountainhold',
+		position: { x: -200, y: 0, z: -150 },
+		produces: ['iron'],
+		consumes: ['grain', 'wool'],
+		description: 'A fortress city built into the mountains',
+		backstory:
+			"Carved directly into the living rock of the Ironpeak Mountains, Mountainhold stands as an impregnable fortress. Its founders, the dwarven clans of old, discovered veins of iron so rich that the very walls gleam with ore. Deep mines wind through the mountain's heart, where generations of miners have extracted the finest iron in the realm. The city's forges burn eternal, fed by coal from nearby seams. Yet the harsh mountain climate yields no crops, and sheep cannot graze on stone. The people of Mountainhold trade their precious iron for the grain and wool they desperately need to survive the long, bitter winters.",
+		terrain: 'mountains',
+		nearbyTerrain: ['mountains', 'forest'],
+		market: {
+			grain: { price: 18 },
+			wool: { price: 22 },
+			iron: { price: 18 },
+			tools: { price: 45 },
+			wine: { price: 85 },
+			spices: { price: 108 },
+		},
+	},
+	portcity: {
+		name: 'Port City',
+		position: { x: 150, y: 0, z: -100 },
+		produces: ['tools'],
+		consumes: ['wool', 'iron'],
+		description: 'A bustling port with skilled craftsmen',
+		backstory:
+			"Where the Great River meets the Endless Sea, Port City thrives as a nexus of trade and craft. The Artisan's Quarter, established by the Guild of Masters three centuries past, houses the finest toolmakers, blacksmiths, and craftsmen in all the lands. Here, raw iron is transformed into precision tools, sturdy plows, and masterwork instruments. The harbor bustles with merchant vessels from distant shores, while the Guild Hall's bronze bells mark the changing of shifts. The city imports iron from the mountains and wool for its ropemakers, exporting finished tools that are said to never break and always hold their edge.",
+		terrain: 'plains',
+		nearbyTerrain: ['river', 'plains'],
+		market: {
+			grain: { price: 12 },
+			wool: { price: 25 },
+			iron: { price: 30 },
+			tools: { price: 40 },
+			wine: { price: 95 },
+			spices: { price: 85 },
+		},
+	},
+	vineyards: {
+		name: 'The Vineyards',
+		position: { x: -100, y: 0, z: 150 },
+		produces: ['wine', 'grain'],
+		consumes: ['tools', 'spices'],
+		description: 'Rolling hills of grapevines producing fine wines',
+		backstory:
+			"The gentle, sun-kissed hills of The Vineyards have produced the realm's finest wines for over five hundred years. Legend tells that the soil was blessed by the old gods, giving the grapes an incomparable sweetness. Each noble house maintains its own vineyard, competing for prestige at the annual Wine Festival. Between the vine-covered slopes, wheat fields provide sustenance for the workers who tend the precious grapes. The vintners constantly seek the finest tools for their delicate work and exotic spices to create their famous spiced wines. The Ruby Vintage of House Meridian once sold for the price of a small castle.",
+		terrain: 'plains',
+		nearbyTerrain: ['plains', 'forest'],
+		market: {
+			grain: { price: 8 },
+			wool: { price: 20 },
+			iron: { price: 32 },
+			tools: { price: 65 },
+			wine: { price: 60 },
+			spices: { price: 120 },
+		},
+	},
+	eastmarket: {
+		name: 'East Market',
+		position: { x: 250, y: 0, z: 100 },
+		produces: ['spices'],
+		consumes: ['grain', 'wine'],
+		description: 'An exotic marketplace filled with rare goods from distant lands',
+		backstory:
+			"At the crossroads of ancient trade routes, East Market emerged as the gateway to the mysterious Eastern Kingdoms. Caravans arrive weekly from beyond the Jade Mountains, bearing saffron, cinnamon, pepper, and rare spices unknown elsewhere. The Spice Merchants' Guild controls the vast warehouses where exotic aromas mingle in the air. The city's cosmopolitan character attracts travelers from every corner of the world—you can hear a dozen languages in the Grand Bazaar. The spice traders, grown wealthy beyond measure, have developed refined tastes, demanding the finest grain for their tables and The Vineyards' best wines for their celebrations.",
+		terrain: 'plains',
+		nearbyTerrain: ['forest', 'plains'],
+		market: {
+			grain: { price: 20 },
+			wool: { price: 18 },
+			iron: { price: 28 },
+			tools: { price: 55 },
+			wine: { price: 100 },
+			spices: { price: 75 },
+		},
+	},
+	northkeep: {
+		name: 'North Keep',
+		position: { x: -50, y: 0, z: -250 },
+		produces: ['iron', 'tools'],
+		consumes: ['grain', 'wine'],
+		description: 'A northern fortress guarding the mountain passes',
+		backstory:
+			"Built during the War of Frost Giants, North Keep stands as the realm's first line of defense against northern invaders. The fortress-city's walls, forty feet thick, have never been breached. Within these walls, military forges work ceaselessly, producing weapons and armor for the realm's armies. Iron mines in the nearby peaks provide endless ore, while master weaponsmiths train apprentices in the ancient art of war-craft. The soldiers and smiths, hardened by the brutal northern climate, require steady supplies of grain to feed the garrison. They've developed a taste for wine to warm their bones during the long, dark winters when snow buries the keep to its battlements.",
+		terrain: 'mountains',
+		nearbyTerrain: ['mountains', 'plains'],
+		market: {
+			grain: { price: 25 },
+			wool: { price: 28 },
+			iron: { price: 15 },
+			tools: { price: 35 },
+			wine: { price: 110 },
+			spices: { price: 105 },
+		},
+	},
+	sandport: {
+		name: 'Sand Port',
+		position: { x: 200, y: 0, z: -250 },
+		produces: ['spices', 'wool'],
+		consumes: ['iron', 'tools', 'grain'],
+		description: 'A desert port city trading in exotic spices',
+		backstory:
+			"Rising from the golden dunes where desert meets sea, Sand Port defies the harsh environment through ingenuity and trade. Founded by nomadic tribes who discovered an oasis and a natural harbor, the city became the sole source of Desert Saffron, the rarest spice in existence. The hardy desert sheep, adapted to survive on scrub brush and cactus, produce a wool so fine it's worth its weight in silver. Ancient aqueducts, built by a long-lost civilization, bring water from hidden springs. Yet the sandy soil grows no crops, and the desert yields no metal. Grain ships and iron caravans are as precious as gold in this city of sun-bleached stone and swaying palms.",
+		terrain: 'desert',
+		nearbyTerrain: ['desert', 'plains'],
+		market: {
+			grain: { price: 22 },
+			wool: { price: 12 },
+			iron: { price: 40 },
+			tools: { price: 58 },
+			wine: { price: 95 },
+			spices: { price: 70 },
+		},
+	},
+	foresthold: {
+		name: 'Forest Hold',
+		position: { x: -250, y: 0, z: 100 },
+		produces: ['wool', 'grain'],
+		consumes: ['tools', 'spices'],
+		description: 'A woodland settlement surrounded by dense forests',
+		backstory:
+			"Deep within the Whispering Woods, where ancient oaks tower like cathedral pillars, Forest Hold exists in harmony with nature. The druids who founded this settlement discovered clearings where the forest itself seemed to welcome cultivation. Here, they grow wheat in sun-dappled glades and tend flocks of forest sheep that graze on sweet clover. The Hold's wooden halls are carved from fallen giants, never taking from living trees. The forest provides all—except iron and proper tools, which the wood-wise people must import for their delicate forestry work. Spices from distant lands are highly prized to preserve food through seasons when the forest paths become impassable.",
+		terrain: 'forest',
+		nearbyTerrain: ['forest', 'plains'],
+		market: {
+			grain: { price: 7 },
+			wool: { price: 9 },
+			iron: { price: 38 },
+			tools: { price: 62 },
+			wine: { price: 88 },
+			spices: { price: 115 },
+		},
+	},
+	silvermine: {
+		name: 'Silvermine',
+		position: { x: -300, y: 0, z: -300 },
+		produces: ['iron', 'tools'],
+		consumes: ['grain', 'spices'],
+		description: 'A mining town rich in silver and iron',
+		backstory:
+			"Nestled in the Silver Peaks, Silvermine earned its name from the legendary Silver Vein discovered two centuries ago. Though the silver has long since been depleted, rich deposits of iron ore sustain the mining community. The miners, descendants of the original silver prospectors, have perfected the art of ore extraction and basic metalworking. The town's isolation in the harsh mountains means every bushel of grain must be hauled up treacherous mountain roads. Spices are luxury items here, used to celebrate the rare occasions when miners strike a new vein or return safely from collapsed tunnels.",
+		terrain: 'mountains',
+		nearbyTerrain: ['mountains', 'mountains'],
+		market: {
+			grain: { price: 24 },
+			wool: { price: 26 },
+			iron: { price: 16 },
+			tools: { price: 38 },
+			wine: { price: 92 },
+			spices: { price: 125 },
+		},
+	},
+	laketown: {
+		name: 'Laketown',
+		position: { x: 50, y: 0, z: 350 },
+		produces: ['grain', 'wine'],
+		consumes: ['iron', 'spices'],
+		description: 'A peaceful lakeside town known for its fishing and agriculture',
+		backstory:
+			"Built on the shores of the Crystal Lake, Laketown prospers from abundant fish and fertile lakeside fields. The fishing fleets bring in their catch at dawn, while farmers tend crops irrigated by the lake's pure waters. Local vintners produce a unique ice wine, made from grapes that freeze on the vine during the first frost. The town's strategic position on the southern trade route makes it a popular rest stop for caravans. However, being far from the mountains, iron is scarce and expensive. Exotic spices are highly sought after to preserve and flavor the abundant fish catch.",
+		terrain: 'plains',
+		nearbyTerrain: ['river', 'plains'],
+		market: {
+			grain: { price: 6 },
+			wool: { price: 19 },
+			iron: { price: 42 },
+			tools: { price: 68 },
+			wine: { price: 65 },
+			spices: { price: 118 },
+		},
+	},
+	stormhaven: {
+		name: 'Stormhaven',
+		position: { x: 300, y: 0, z: -350 },
+		produces: ['spices', 'tools'],
+		consumes: ['grain', 'wool'],
+		description: 'A coastal fortress where storms and trade winds meet',
+		backstory:
+			"Perched on jagged cliffs overlooking the Storm Sea, Stormhaven serves as both a naval fortress and major trading port. The city's position catches the monsoon winds that bring spice-laden ships from the Far Isles. Storm-hardened craftsmen forge tools designed to withstand the harsh coastal conditions—rust-proof, salt-resistant, and virtually indestructible. The rocky soil yields nothing but stone, forcing the city to import all food and textiles. During storm season, the city's massive seawalls protect the harbor while waves crash spectacularly against the ramparts, drawing brave travelers who come to witness nature's fury.",
+		terrain: 'plains',
+		nearbyTerrain: ['desert', 'plains'],
+		market: {
+			grain: { price: 26 },
+			wool: { price: 30 },
+			iron: { price: 29 },
+			tools: { price: 42 },
+			wine: { price: 88 },
+			spices: { price: 72 },
+		},
+	},
+	goldenfields: {
+		name: 'Golden Fields',
+		position: { x: -150, y: 0, z: 350 },
+		produces: ['grain', 'wool'],
+		consumes: ['tools', 'wine'],
+		description: 'Vast agricultural plains stretching to the horizon',
+		backstory:
+			'The Golden Fields stretch farther than the eye can see—an endless expanse of wheat, barley, and grazing pastures. This is the breadbasket that feeds half the realm. Generations of farming families work the land using techniques passed down through centuries. The fields are so productive that grain silos tower over every homestead. Massive flocks of sheep roam the pastures, producing wool in quantities that boggle the mind. Despite their agricultural wealth, the farmers lack the tools and equipment to maximize their harvest, and they dream of the fine wines they can never afford from distant vineyards.',
+		terrain: 'plains',
+		nearbyTerrain: ['plains', 'plains'],
+		market: {
+			grain: { price: 4 },
+			wool: { price: 8 },
+			iron: { price: 36 },
+			tools: { price: 72 },
+			wine: { price: 105 },
+			spices: { price: 112 },
+		},
+	},
+	highcliff: {
+		name: 'High Cliff',
+		position: { x: 350, y: 0, z: 200 },
+		produces: ['wine', 'spices'],
+		consumes: ['grain', 'iron'],
+		description: 'A prestigious hilltop city of wealth and culture',
+		backstory:
+			"Perched atop the White Cliffs, High Cliff is where the wealthy and influential make their homes. The city's elevation provides the perfect climate for growing premium wine grapes and rare spice gardens. Noble estates with sprawling vineyards cascade down the hillsides, while rooftop spice gardens fill the air with exotic fragrances. Artists, poets, and merchants flock here, drawn by the city's reputation for culture and refinement. However, the rocky hilltop soil cannot support grain crops, and the city's blacksmiths must import every ounce of iron from distant mines. The citizens pay premium prices for these necessities.",
+		terrain: 'plains',
+		nearbyTerrain: ['plains', 'forest'],
+		market: {
+			grain: { price: 22 },
+			wool: { price: 21 },
+			iron: { price: 44 },
+			tools: { price: 64 },
+			wine: { price: 58 },
+			spices: { price: 68 },
+		},
+	},
+	ironforge: {
+		name: 'Ironforge',
+		position: { x: -350, y: 0, z: -100 },
+		produces: ['iron', 'tools'],
+		consumes: ['grain', 'wine'],
+		description: 'The greatest smithing center in all the lands',
+		backstory:
+			"Ironforge is a city of eternal flame and hammer-song. The world's most skilled blacksmiths, armorers, and weaponsmiths make their forges here, where the greatest masterworks of metalcraft are born. The city sits atop the richest iron deposits ever discovered, with mines extending miles into the earth. The Grand Forge, a massive complex at the city's heart, never goes dark—its fires have burned for three hundred years. Master smiths from across the realm send their apprentices here to learn. Despite their metallurgical wealth, the smiths live on imported grain and dream of the wines they're too busy to produce themselves.",
+		terrain: 'mountains',
+		nearbyTerrain: ['mountains', 'forest'],
+		market: {
+			grain: { price: 27 },
+			wool: { price: 24 },
+			iron: { price: 14 },
+			tools: { price: 32 },
+			wine: { price: 115 },
+			spices: { price: 106 },
+		},
+	},
+};
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports = CitiesData;
+}
