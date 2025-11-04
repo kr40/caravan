@@ -15,6 +15,8 @@ class Game {
 		this.worldManager = null;
 		this.caravanManager = null;
 		this.cityManager = null;
+		this.roadManager = null;
+		this.pathfindingSystem = null;
 		this.marketSystem = null;
 		this.inputSystem = null;
 		this.uiManager = null;
@@ -81,8 +83,10 @@ class Game {
 		this.worldManager = new WorldManager(this.scene);
 		this.caravanManager = new CaravanManager(this.scene, this.gameState);
 		this.cityManager = new CityManager(this.scene, this.gameState);
+		this.roadManager = new RoadManager(this.scene);
 
 		// Systems
+		this.pathfindingSystem = new PathfindingSystem();
 		this.marketSystem = new MarketSystem(this.gameState);
 		this.inputSystem = new InputSystem(this.camera, this.renderer);
 		this.uiManager = new UIManager(this.gameState, this.marketSystem);
@@ -95,6 +99,8 @@ class Game {
 		this.worldManager.createWorld();
 		this.caravanManager.createCaravan();
 		this.cityManager.createCities();
+		this.roadManager.createRoads();
+		this.roadManager.createObstacles();
 
 		// Initialize systems
 		this.inputSystem.initialize();
@@ -159,24 +165,112 @@ class Game {
 		const cityPosition = this.cityManager.getCityPosition(cityId);
 		const currentPosition = this.caravanManager.getPosition();
 
+		// Find current city if we're at one
+		const currentCityId = this.gameState.playerCaravan.currentCity || this.findNearestCity();
+
+		// Use pathfinding to check route
+		let pathResult = null;
+		let routeInfo = '';
+
+		if (currentCityId && currentCityId !== cityId) {
+			pathResult = this.pathfindingSystem.findPath(currentCityId, cityId);
+
+			// Check if path is blocked
+			if (pathResult.blocked) {
+				alert(
+					`Cannot travel directly to ${cityData.name}!\n\n` +
+						`${pathResult.obstacle.name} blocks the way.\n\n` +
+						`You need to find an alternate route through the road network.`
+				);
+				return;
+			}
+
+			// Get route description
+			routeInfo = this.pathfindingSystem.getRouteDescription(pathResult);
+
+			// Show route information if not direct
+			if (!pathResult.isDirect) {
+				const confirm = window.confirm(
+					`Route to ${cityData.name}:\n\n` +
+						`${routeInfo}\n\n` +
+						`This route has ${pathResult.distance} segment(s).\n\n` +
+						`Continue with this journey?`
+				);
+
+				if (!confirm) return;
+			} else if (pathResult.isOffRoad) {
+				const confirm = window.confirm(
+					`Warning: Off-road travel to ${cityData.name}\n\n` +
+						`Traveling without roads is slower and uses more food.\n\n` +
+						`Continue?`
+				);
+
+				if (!confirm) return;
+			}
+		}
+
+		// Calculate modifiers from path
+		let speedMultiplier = GameConfig.terrain[cityData.terrain]?.speedMultiplier || 1.0;
+		let foodMultiplier = 1.0;
+
+		if (pathResult && pathResult.path) {
+			const modifiers = this.pathfindingSystem.calculatePathModifiers(pathResult);
+			if (modifiers) {
+				speedMultiplier *= modifiers.speedBonus;
+				foodMultiplier = modifiers.foodMultiplier;
+			}
+		}
+
 		// Check if player has enough food for the journey
-		const terrain = cityData.terrain || 'plains';
-		if (!this.resourceSystem.canAffordJourney(currentPosition, cityPosition, terrain)) {
-			const estimatedCost = this.resourceSystem.estimateFoodCost(currentPosition, cityPosition, terrain);
+		const baseFoodCost = this.resourceSystem.estimateFoodCost(currentPosition, cityPosition, cityData.terrain);
+		const adjustedFoodCost = Math.ceil(baseFoodCost * foodMultiplier);
+
+		if (this.gameState.playerCaravan.food < adjustedFoodCost) {
 			alert(
-				`Not enough food for this journey! Need ${estimatedCost} food. Current: ${this.gameState.playerCaravan.food}`
+				`Not enough food for this journey!\n\n` +
+					`Need: ${adjustedFoodCost} food\n` +
+					`Have: ${this.gameState.playerCaravan.food} food\n\n` +
+					(foodMultiplier > 1 ? '(Off-road travel requires extra food)' : '')
 			);
 			return;
 		}
 
 		// Set terrain speed multiplier
-		const speedMultiplier = GameConfig.terrain[terrain]?.speedMultiplier || 1.0;
 		this.caravanManager.setTerrainSpeed(speedMultiplier);
+
+		// Store path information
+		this.gameState.currentPath = pathResult;
 
 		// Start journey
 		this.gameState.setTarget(cityPosition.x, cityPosition.z);
 		this.gameState.selectedCity = cityId;
 		this.resourceSystem.startJourney(currentPosition, cityId);
+
+		console.log(
+			`[TRAVEL] ${routeInfo || 'Direct travel'} - Speed: ${speedMultiplier.toFixed(2)}x, Food: ${foodMultiplier.toFixed(
+				2
+			)}x`
+		);
+	}
+
+	// Find nearest city to current position
+	findNearestCity() {
+		const currentPos = this.caravanManager.getPosition();
+		let nearestCity = null;
+		let minDistance = Infinity;
+
+		Object.keys(CitiesData).forEach((cityId) => {
+			const cityPos = this.cityManager.getCityPosition(cityId);
+			const distance = currentPos.distanceTo(cityPos);
+
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearestCity = cityId;
+			}
+		});
+
+		// Only return if we're actually close to a city
+		return minDistance < 50 ? nearestCity : null;
 	}
 
 	// Handle arrival at city

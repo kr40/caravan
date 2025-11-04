@@ -10,6 +10,7 @@ class TooltipManager {
 		this.terrain = document.getElementById('tooltip-terrain');
 		this.produces = document.getElementById('tooltip-produces');
 		this.consumes = document.getElementById('tooltip-consumes');
+		this.connections = document.getElementById('tooltip-connections');
 		this.currentCity = null;
 	}
 
@@ -25,6 +26,7 @@ class TooltipManager {
 		this.terrain.textContent = this.formatTerrain(cityData.terrain);
 		this.produces.textContent = this.formatGoods(cityData.produces);
 		this.consumes.textContent = this.formatGoods(cityData.consumes);
+		this.connections.textContent = this.formatConnections(cityId);
 
 		// Position tooltip near mouse
 		const offsetX = 15;
@@ -77,6 +79,28 @@ class TooltipManager {
 				return good ? good.name : goodId;
 			})
 			.join(', ');
+	}
+
+	// Format road connections for display
+	formatConnections(cityId) {
+		const connections = RoadsData.connections.filter((conn) => conn.from === cityId || conn.to === cityId);
+
+		if (connections.length === 0) return 'None';
+
+		const cityNames = connections.map((conn) => {
+			const targetId = conn.from === cityId ? conn.to : conn.from;
+			const targetCity = CitiesData[targetId];
+			const roadType = RoadsData.types[conn.type];
+
+			// Add icon/indicator for road type
+			let icon = '─'; // Regular road
+			if (conn.type === 'bridge') icon = '≈';
+			if (conn.type === 'mountain_pass') icon = '∧';
+
+			return `${icon} ${targetCity ? targetCity.name : targetId}`;
+		});
+
+		return cityNames.join(', ');
 	}
 
 	// Update tooltip position

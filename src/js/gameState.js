@@ -24,6 +24,7 @@ class GameState {
 		this.gameDay = 1;
 		this.selectedCity = null;
 		this.globalEvents = [];
+		this.currentPath = null; // Current pathfinding route
 
 		// History tracking
 		this.journeyHistory = [];
