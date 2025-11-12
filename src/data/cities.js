@@ -213,6 +213,25 @@ const CitiesData = {
 			spices: { price: 72 },
 		},
 	},
+	westwood: {
+		name: 'Westwood',
+		position: { x: -450, y: 0, z: 350 },
+		produces: ['wool', 'grain'],
+		consumes: ['tools', 'iron'],
+		description: 'A small settlement on the western edge of the Golden Fields, known for its timber.',
+		backstory:
+			'Nestled at the edge of the vast Golden Fields and bordering ancient forests, Westwood is a quiet, industrious settlement. Its people are skilled in forestry and carpentry, making good use of the abundant timber. They also raise sheep and cultivate small plots of grain in the forest clearings. The town relies on trade for essential tools and iron, which are scarce in their wooded surroundings. The air here is always fresh, carrying the scent of pine and sawdust.',
+		terrain: 'forest',
+		nearbyTerrain: ['forest', 'plains'],
+		market: {
+			grain: { price: 9 },
+			wool: { price: 11 },
+			iron: { price: 37 },
+			tools: { price: 68 },
+			wine: { price: 98 },
+			spices: { price: 110 },
+		},
+	},
 	goldenfields: {
 		name: 'Golden Fields',
 		position: { x: -150, y: 0, z: 350 },

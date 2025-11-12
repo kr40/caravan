@@ -39,6 +39,9 @@ const RoadsData = {
 		{ from: 'goldenfields', to: 'vineyards', type: 'road', terrain: 'plains' },
 
 		{ from: 'highcliff', to: 'stormhaven', type: 'road', terrain: 'plains' },
+
+		{ from: 'westwood', to: 'goldenfields', type: 'road', terrain: 'plains' },
+		{ from: 'westwood', to: 'foresthold', type: 'road', terrain: 'forest' },
 	],
 
 	// Road type properties
