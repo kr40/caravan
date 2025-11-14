@@ -29,6 +29,7 @@ class GameState {
 		// History tracking
 		this.journeyHistory = [];
 		this.tradingHistory = [];
+		this.encounterHistory = [];
 		this.totalTrades = 0;
 		this.totalProfit = 0;
 		this.startingGold = GameConfig.caravan.startingGold;
@@ -168,6 +169,22 @@ class GameState {
 		this.journeyHistory.unshift(entry); // Add to beginning
 		if (this.journeyHistory.length > 20) {
 			this.journeyHistory.pop(); // Keep only last 20 entries
+		}
+	}
+
+	// Add encounter history entry
+	addEncounterEntry(encounterName, encounterType, result, mercUsed = null) {
+		const entry = {
+			day: this.gameDay,
+			name: encounterName,
+			type: encounterType,
+			result: result,
+			mercenary: mercUsed,
+			timestamp: Date.now(),
+		};
+		this.encounterHistory.unshift(entry); // Add to beginning
+		if (this.encounterHistory.length > 30) {
+			this.encounterHistory.pop(); // Keep only last 30 entries
 		}
 	}
 

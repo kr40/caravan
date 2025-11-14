@@ -86,7 +86,7 @@
 						</div>
 						<div class="cart-section">
 							<div class="cart-frame">
-								<div class="cart-image">🐎�</div>
+								<div class="cart-image">🐎</div>
 								<p class="cart-label">Your Caravan</p>
 							</div>
 						</div>
@@ -131,27 +131,57 @@
 						</div>
 					</div>
 
-					<!-- Current Cargo Section -->
+					<!-- Tabbed Content Section -->
 					<div class="details-section">
-						<h3>Current Cargo</h3>
-						<div id="current-cargo-list" class="cargo-inventory">
-							<p class="empty-message">No cargo currently loaded</p>
-						</div>
-					</div>
+						<div class="tabs-container">
+							<div class="tabs-header">
+								<button class="tab-btn active" data-tab="cargo">📦 Cargo</button>
+								<button class="tab-btn" data-tab="mercenaries">⚔️ Mercenaries</button>
+								<button class="tab-btn" data-tab="journeys">🗺️ Journeys</button>
+								<button class="tab-btn" data-tab="encounters">⚡ Encounters</button>
+								<button class="tab-btn" data-tab="trades">💰 Trades</button>
+							</div>
+							<div class="tabs-content">
+								<!-- Cargo Tab -->
+								<div id="tab-cargo" class="tab-panel active">
+									<h3>Current Cargo</h3>
+									<div id="current-cargo-list" class="cargo-inventory">
+										<p class="empty-message">No cargo currently loaded</p>
+									</div>
+								</div>
 
-					<!-- Journey History -->
-					<div class="details-section">
-						<h3>Journey History</h3>
-						<div id="journey-history" class="history-list">
-							<p class="empty-message">Your journey begins...</p>
-						</div>
-					</div>
+								<!-- Mercenaries Tab -->
+								<div id="tab-mercenaries" class="tab-panel">
+									<h3>Your Mercenaries</h3>
+									<div id="caravan-mercenaries-list" class="mercenaries-list">
+										<p class="empty-message">No mercenaries hired</p>
+									</div>
+								</div>
 
-					<!-- Trading History -->
-					<div class="details-section">
-						<h3>Recent Trades</h3>
-						<div id="trading-history" class="history-list">
-							<p class="empty-message">No trades recorded yet</p>
+								<!-- Journey History Tab -->
+								<div id="tab-journeys" class="tab-panel">
+									<h3>Journey History</h3>
+									<div id="journey-history" class="history-list">
+										<p class="empty-message">Your journey begins...</p>
+									</div>
+								</div>
+
+								<!-- Encounters Tab -->
+								<div id="tab-encounters" class="tab-panel">
+									<h3>Encounter History</h3>
+									<div id="encounter-history" class="history-list">
+										<p class="empty-message">No encounters yet</p>
+									</div>
+								</div>
+
+								<!-- Trades Tab -->
+								<div id="tab-trades" class="tab-panel">
+									<h3>Recent Trades</h3>
+									<div id="trading-history" class="history-list">
+										<p class="empty-message">No trades recorded yet</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -172,15 +202,35 @@
 							<p id="city-backstory" class="backstory-text"></p>
 						</div>
 						<button id="market-btn" class="menu-btn">Enter Market</button>
+						<button id="inn-btn" class="menu-btn">Visit Inn</button>
+						<button id="leave-city-btn" class="menu-btn">Leave City</button>
+					</div>
+					<div id="inn-view" class="hidden">
+						<h3>🏰 The Inn</h3>
 						<div class="inn-section">
-							<h3>Inn & Supplies</h3>
+							<h4>Food & Supplies</h4>
 							<p>Restock food for your journey (2 gold per unit)</p>
 							<div class="food-purchase">
 								<input type="number" id="food-qty" value="10" min="1" max="100" />
 								<button id="buy-food-btn" class="action-btn buy-btn">Buy Food</button>
 							</div>
 						</div>
-						<button id="leave-city-btn" class="menu-btn">Leave City</button>
+						<div class="mercenary-section">
+							<h4>⚔️ Hire Mercenaries</h4>
+							<p>Skilled companions to help on your journeys</p>
+							<div id="available-mercenaries" class="mercenaries-container">
+								<!-- Mercenaries will be dynamically inserted here -->
+							</div>
+							<div id="hired-mercenaries-section" style="margin-top: 20px">
+								<h4>👥 Your Mercenaries</h4>
+								<div id="hired-mercenaries" class="mercenaries-container">
+									<!-- Hired mercenaries will be shown here -->
+								</div>
+							</div>
+						</div>
+						<div class="market-actions">
+							<button id="back-to-city-from-inn-btn" class="menu-btn">Back to City</button>
+						</div>
 					</div>
 					<div id="market-view" class="hidden">
 						<h3>Market</h3>
@@ -284,6 +334,8 @@
 		<script src="src/data/goods.js"></script>
 		<script src="src/data/cities.js"></script>
 		<script src="src/data/roads.js"></script>
+		<script src="src/data/encounters.js"></script>
+		<script src="src/data/mercenaries.js"></script>
 
 		<!-- Game Core -->
 		<script src="src/js/gameState.js"></script>
@@ -299,6 +351,8 @@
 		<script src="src/systems/inputSystem.js"></script>
 		<script src="src/systems/resourceSystem.js"></script>
 		<script src="src/systems/pathfindingSystem.js"></script>
+		<script src="src/systems/encounterSystem.js"></script>
+		<script src="src/systems/mercenarySystem.js"></script>
 
 		<!-- UI -->
 		<script src="src/ui/uiManager.js"></script>

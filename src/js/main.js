@@ -23,6 +23,8 @@ class Game {
 		this.resourceSystem = null;
 		this.minimapManager = null;
 		this.tooltipManager = null;
+		this.encounterSystem = null;
+		this.mercenarySystem = null;
 
 		// Animation
 		this.animationId = null;
@@ -88,12 +90,14 @@ class Game {
 		// Systems
 		this.pathfindingSystem = new PathfindingSystem();
 		this.marketSystem = new MarketSystem(this.gameState);
+		this.mercenarySystem = new MercenarySystem(this.gameState);
 		this.inputSystem = new InputSystem(this.camera, this.renderer);
-		this.uiManager = new UIManager(this.gameState, this.marketSystem);
+		this.uiManager = new UIManager(this.gameState, this.marketSystem, this.mercenarySystem);
 		this.resourceSystem = new ResourceSystem(this.gameState);
 		this.debugManager = new DebugManager(this.gameState, this.uiManager);
 		this.minimapManager = new MinimapManager(this.gameState, GameConfig.world.size);
 		this.tooltipManager = new TooltipManager();
+		this.encounterSystem = new EncounterSystem(this.gameState);
 
 		// Create world elements
 		this.worldManager.createWorld();
@@ -246,6 +250,9 @@ class Game {
 		this.gameState.selectedCity = cityId;
 		this.resourceSystem.startJourney(currentPosition, cityId);
 
+		// Reset encounter system for new journey
+		this.encounterSystem.resetForJourney();
+
 		console.log(
 			`[TRAVEL] ${routeInfo || 'Direct travel'} - Speed: ${speedMultiplier.toFixed(2)}x, Food: ${foodMultiplier.toFixed(
 				2
@@ -294,6 +301,252 @@ class Game {
 	// Handle exiting a city
 	handleCityExit() {
 		this.gameState.selectedCity = null;
+	}
+
+	// Handle random encounter
+	handleEncounter(encounter) {
+		// Check if mercenaries can help
+		const mercenaryOptions = this.mercenarySystem.handleEncounterWithMercenaries(encounter);
+
+		if (mercenaryOptions && mercenaryOptions.length > 0) {
+			// Show interactive encounter modal with mercenary options
+			this.showInteractiveEncounterModal(encounter, mercenaryOptions);
+		} else {
+			// No mercenaries available, apply encounter normally
+			const resultMessage = this.encounterSystem.applyEncounter(encounter);
+			const encounterColor = encounter.type === 'positive' ? '#4CAF50' : '#f44336';
+
+			// Record encounter in history
+			this.gameState.addEncounterEntry(encounter.name, encounter.type, resultMessage);
+
+			this.showEncounterModal(encounter.name, encounter.description, resultMessage, encounterColor);
+		}
+
+		// Update HUD to show changes
+		this.uiManager.updateHUD();
+
+		console.log(`[ENCOUNTER] ${encounter.name}`);
+	}
+
+	// Show encounter modal
+	showEncounterModal(name, description, result, color) {
+		// Create modal overlay
+		const overlay = document.createElement('div');
+		overlay.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.7);
+			z-index: 10000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		`;
+
+		// Create modal content
+		const modal = document.createElement('div');
+		modal.style.cssText = `
+			background: #2a2a2a;
+			border: 3px solid ${color};
+			border-radius: 10px;
+			padding: 30px;
+			max-width: 500px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+			color: #fff;
+			font-family: 'Georgia', serif;
+		`;
+
+		modal.innerHTML = `
+			<h2 style="margin: 0 0 15px 0; color: ${color}; font-size: 24px; border-bottom: 2px solid ${color}; padding-bottom: 10px;">${name}</h2>
+			<p style="margin: 15px 0; line-height: 1.6; font-size: 16px;">${description}</p>
+			<p style="margin: 15px 0; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 5px; border-left: 4px solid ${color}; font-weight: bold;">${result}</p>
+			<button id="encounter-continue-btn" style="
+				width: 100%;
+				padding: 12px;
+				margin-top: 15px;
+				background: ${color};
+				border: none;
+				border-radius: 5px;
+				color: white;
+				font-size: 16px;
+				font-weight: bold;
+				cursor: pointer;
+				transition: all 0.3s;
+			">Continue Journey</button>
+		`;
+
+		overlay.appendChild(modal);
+		document.body.appendChild(overlay);
+
+		// Add button hover effect
+		const btn = document.getElementById('encounter-continue-btn');
+		btn.addEventListener('mouseenter', () => {
+			btn.style.transform = 'scale(1.05)';
+			btn.style.boxShadow = `0 5px 15px ${color}80`;
+		});
+		btn.addEventListener('mouseleave', () => {
+			btn.style.transform = 'scale(1)';
+			btn.style.boxShadow = 'none';
+		});
+
+		// Handle continue button
+		btn.addEventListener('click', () => {
+			document.body.removeChild(overlay);
+			// Resume movement
+			this.gameState.playerCaravan.isMoving = true;
+		});
+	}
+
+	// Show interactive encounter modal with mercenary options
+	showInteractiveEncounterModal(encounter, mercenaryOptions) {
+		const color = encounter.type === 'positive' ? '#4CAF50' : '#f44336';
+
+		// Create modal overlay
+		const overlay = document.createElement('div');
+		overlay.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.7);
+			z-index: 10000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		`;
+
+		// Create modal content
+		const modal = document.createElement('div');
+		modal.style.cssText = `
+			background: #2a2a2a;
+			border: 3px solid ${color};
+			border-radius: 10px;
+			padding: 30px;
+			max-width: 600px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+			color: #fff;
+			font-family: 'Georgia', serif;
+		`;
+
+		// Build mercenary options HTML
+		let optionsHTML = '';
+		mercenaryOptions.forEach((option, index) => {
+			const successPercent = Math.round(option.successChance * 100);
+			optionsHTML += `
+				<button class="merc-option-btn" data-option-index="${index}" style="
+					width: 100%;
+					padding: 15px;
+					margin: 10px 0;
+					background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+					border: 2px solid #555;
+					border-radius: 8px;
+					color: white;
+					font-size: 14px;
+					cursor: pointer;
+					text-align: left;
+					transition: all 0.3s;
+				">
+					<div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${option.label}</div>
+					<div style="color: #aaa; font-size: 13px;">${option.description}</div>
+					<div style="color: #4CAF50; font-size: 12px; margin-top: 5px;">Success Chance: ${successPercent}%</div>
+				</button>
+			`;
+		});
+
+		// Add "Accept Fate" option
+		optionsHTML += `
+			<button class="merc-option-btn" data-option-index="accept" style="
+				width: 100%;
+				padding: 15px;
+				margin: 10px 0;
+				background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+				border: 2px solid #555;
+				border-radius: 8px;
+				color: white;
+				font-size: 14px;
+				cursor: pointer;
+				text-align: left;
+				transition: all 0.3s;
+			">
+				<div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">⚖️ Accept Without Help</div>
+				<div style="color: #aaa; font-size: 13px;">Face the encounter without mercenary assistance</div>
+			</button>
+		`;
+
+		modal.innerHTML = `
+			<h2 style="margin: 0 0 15px 0; color: ${color}; font-size: 24px; border-bottom: 2px solid ${color}; padding-bottom: 10px;">
+				${encounter.type === 'positive' ? '✨' : '⚠️'} ${encounter.name}
+			</h2>
+			<p style="margin: 15px 0; line-height: 1.6; font-size: 16px;">${encounter.description}</p>
+			<div style="margin: 20px 0; padding: 15px; background: rgba(255, 215, 0, 0.1); border-radius: 5px; border-left: 4px solid gold;">
+				<strong style="color: gold;">Your mercenaries can help!</strong><br>
+				<span style="color: #ccc; font-size: 14px;">Choose how to handle this situation:</span>
+			</div>
+			<div id="merc-options-container">
+				${optionsHTML}
+			</div>
+		`;
+
+		overlay.appendChild(modal);
+		document.body.appendChild(overlay);
+
+		// Add hover effects and click handlers
+		const optionButtons = modal.querySelectorAll('.merc-option-btn');
+		optionButtons.forEach((btn) => {
+			btn.addEventListener('mouseenter', () => {
+				btn.style.transform = 'translateX(5px)';
+				btn.style.borderColor = '#888';
+				btn.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+			});
+			btn.addEventListener('mouseleave', () => {
+				btn.style.transform = 'translateX(0)';
+				btn.style.borderColor = '#555';
+				btn.style.boxShadow = 'none';
+			});
+
+			btn.addEventListener('click', () => {
+				const optionIndex = btn.getAttribute('data-option-index');
+				document.body.removeChild(overlay);
+
+				if (optionIndex === 'accept') {
+					// Apply encounter normally without mercenary help
+					const resultMessage = this.encounterSystem.applyEncounter(encounter);
+
+					// Record encounter in history
+					this.gameState.addEncounterEntry(encounter.name, encounter.type, resultMessage);
+
+					this.showEncounterModal(encounter.name, encounter.description, resultMessage, color);
+				} else {
+					// Use mercenary action
+					const option = mercenaryOptions[parseInt(optionIndex)];
+					const result = this.mercenarySystem.applyMercenaryAction(option, encounter, encounter.appliedEffects);
+
+					// Apply the modified effects
+					encounter.appliedEffects = result.effects;
+					const resultMessage = this.encounterSystem.applyEncounter(encounter);
+
+					// Show result with mercenary message
+					const fullMessage = `${result.message}\n\n${resultMessage}`;
+					const resultColor = result.success ? '#4CAF50' : '#FF9800';
+
+					// Record encounter in history with mercenary info
+					this.gameState.addEncounterEntry(encounter.name, encounter.type, fullMessage, result.mercenary.name);
+
+					this.showEncounterModal(
+						`${result.mercenary.icon} ${encounter.name}`,
+						encounter.description,
+						fullMessage,
+						resultColor
+					);
+				}
+
+				// Update HUD
+				this.uiManager.updateHUD();
+			});
+		});
 	}
 
 	// Teleport to a city (debug function)
@@ -369,6 +622,17 @@ class Game {
 		// Update resource consumption during travel
 		if (this.gameState.playerCaravan.isMoving) {
 			this.resourceSystem.updateTravel(this.gameState.playerCaravan.position);
+
+			// Check for random encounters
+			const currentTerrain = this.encounterSystem.getTerrainForPosition(this.gameState.selectedCity);
+			const encounter = this.encounterSystem.checkForEncounter(this.gameState.playerCaravan.position, currentTerrain);
+
+			if (encounter) {
+				// Pause movement during encounter
+				this.gameState.playerCaravan.isMoving = false;
+				this.handleEncounter(encounter);
+			}
+
 			this.uiManager.updateHUD(); // Update HUD to show food consumption
 		}
 
