@@ -458,7 +458,14 @@ class UIManager {
 	// Handle buy action
 	handleBuy(goodId) {
 		const cityId = this.gameState.playerCaravan.currentCity;
-		const quantity = parseInt(document.getElementById(`qty-${goodId}`).value);
+		const qtyElement = document.getElementById(`qty-${goodId}`);
+
+		if (!qtyElement) {
+			console.error('[UIManager] Quantity input not found for:', goodId);
+			return;
+		}
+
+		const quantity = parseInt(qtyElement.value);
 
 		const result = this.marketSystem.buyGoods(cityId, goodId, quantity);
 
@@ -474,7 +481,14 @@ class UIManager {
 	// Handle sell action
 	handleSell(goodId) {
 		const cityId = this.gameState.playerCaravan.currentCity;
-		const quantity = parseInt(document.getElementById(`qty-${goodId}`).value);
+		const qtyElement = document.getElementById(`qty-${goodId}`);
+
+		if (!qtyElement) {
+			console.error('[UIManager] Quantity input not found for:', goodId);
+			return;
+		}
+
+		const quantity = parseInt(qtyElement.value);
 
 		const result = this.marketSystem.sellGoods(cityId, goodId, quantity);
 

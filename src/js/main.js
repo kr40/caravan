@@ -25,19 +25,152 @@ class Game {
 		this.tooltipManager = null;
 		this.encounterSystem = null;
 		this.mercenarySystem = null;
+		this.saveManager = null;
 
 		// Animation
 		this.animationId = null;
 
 		// Journey tracking
 		this.lastCity = null;
-	} // Initialize the game
-	initialize() {
+
+		// Game initialization state
+		this.isInitialized = false;
+		this.saveButtonTimeout = null;
+	}
+
+	// Show start screen
+	showStartScreen() {
+		const startScreen = document.getElementById('start-screen');
+		const slotScreen = document.getElementById('slot-selection-screen');
+		const newGameBtn = document.getElementById('new-game-btn');
+		const loadGameBtn = document.getElementById('load-game-btn');
+		const backToMenuBtn = document.getElementById('back-to-menu-btn');
+
+		// Initialize save manager
+		if (!this.saveManager) {
+			this.saveManager = new SaveManager();
+		}
+
+		// Remove old event listeners by cloning buttons
+		const newNewGameBtn = newGameBtn.cloneNode(true);
+		newGameBtn.parentNode.replaceChild(newNewGameBtn, newGameBtn);
+
+		const newLoadGameBtn = loadGameBtn.cloneNode(true);
+		loadGameBtn.parentNode.replaceChild(newLoadGameBtn, loadGameBtn);
+
+		const newBackToMenuBtn = backToMenuBtn.cloneNode(true);
+		backToMenuBtn.parentNode.replaceChild(newBackToMenuBtn, backToMenuBtn);
+
+		// New Game button - show slot selection
+		newNewGameBtn.addEventListener('click', () => {
+			this.showSlotSelection('new');
+		});
+
+		// Load Game button - show slot selection
+		newLoadGameBtn.addEventListener('click', () => {
+			this.showSlotSelection('load');
+		});
+
+		// Back to menu button
+		newBackToMenuBtn.addEventListener('click', () => {
+			slotScreen.style.display = 'none';
+			startScreen.style.display = 'flex';
+		});
+	}
+
+	// Show slot selection screen
+	showSlotSelection(mode) {
+		const startScreen = document.getElementById('start-screen');
+		const slotScreen = document.getElementById('slot-selection-screen');
+		const slotTitle = document.getElementById('slot-title');
+
+		// Update title based on mode
+		slotTitle.textContent = mode === 'new' ? 'Select Save Slot' : 'Load Game';
+
+		// Update slot displays
+		for (let i = 1; i <= 3; i++) {
+			const slotElement = document.querySelector(`.save-slot[data-slot="${i}"]`);
+			const saveInfo = this.saveManager.getSaveInfo(i);
+
+			// Remove old click listeners by cloning
+			const newSlotElement = slotElement.cloneNode(true);
+			slotElement.parentNode.replaceChild(newSlotElement, slotElement);
+
+			// Get elements from the NEW cloned element
+			const statusElement = newSlotElement.querySelector(`#slot-${i}-status`);
+			const detailsElement = newSlotElement.querySelector(`#slot-${i}-details`);
+
+			if (saveInfo) {
+				// Slot has data
+				statusElement.textContent = 'Saved Game';
+				newSlotElement.querySelector(`#slot-${i}-gold`).textContent = saveInfo.gold;
+				newSlotElement.querySelector(`#slot-${i}-day`).textContent = saveInfo.day;
+				const date = new Date(saveInfo.timestamp);
+				newSlotElement.querySelector(`#slot-${i}-time`).textContent = date.toLocaleString();
+				detailsElement.style.display = 'block';
+			} else {
+				// Empty slot
+				statusElement.textContent = 'Empty';
+				detailsElement.style.display = 'none';
+			}
+
+			// Add click listener
+			newSlotElement.addEventListener('click', () => {
+				if (mode === 'new') {
+					// New game - can use any slot
+					this.startNewGame(i);
+				} else {
+					// Load game - only if slot has data
+					if (saveInfo) {
+						this.loadGameFromSlot(i);
+					} else {
+						alert('This slot is empty!');
+					}
+				}
+			});
+		}
+
+		// Show slot selection screen
+		startScreen.style.display = 'none';
+		slotScreen.style.display = 'flex';
+	}
+
+	// Start new game in specific slot
+	startNewGame(slotNumber) {
+		console.log('[Game] Starting new game in slot:', slotNumber);
+		this.saveManager.setCurrentSlot(slotNumber);
+
+		document.getElementById('slot-selection-screen').style.display = 'none';
+		document.getElementById('game-container').style.display = 'block';
+		document.getElementById('hud').style.display = 'block';
+		document.getElementById('minimap-container').style.display = 'block';
+
+		this.initialize(false);
+	}
+
+	// Load game from specific slot
+	loadGameFromSlot(slotNumber) {
+		console.log('[Game] Loading game from slot:', slotNumber);
+		this.saveManager.setCurrentSlot(slotNumber);
+
+		document.getElementById('slot-selection-screen').style.display = 'none';
+		document.getElementById('game-container').style.display = 'block';
+		document.getElementById('hud').style.display = 'block';
+		document.getElementById('minimap-container').style.display = 'block';
+
+		this.initialize(true);
+	}
+
+	// Initialize the game
+	initialize(loadSave = false) {
+		if (this.isInitialized) return;
+
 		this.setupThreeJS();
 		this.setupLighting();
-		this.initializeSystems();
+		this.initializeSystems(loadSave);
 		this.setupEventListeners();
 		this.start();
+		this.isInitialized = true;
 	}
 
 	// Set up Three.js scene, camera, and renderer
@@ -77,9 +210,14 @@ class Game {
 	}
 
 	// Initialize all game systems and managers
-	initializeSystems() {
+	initializeSystems(loadSave = false) {
 		// Core state
 		this.gameState = new GameState();
+
+		// Save manager (initialize early)
+		if (!this.saveManager) {
+			this.saveManager = new SaveManager();
+		}
 
 		// Managers
 		this.worldManager = new WorldManager(this.scene);
@@ -106,6 +244,11 @@ class Game {
 		this.roadManager.createRoads();
 		this.roadManager.createObstacles();
 
+		// Load save if requested (AFTER creating all systems)
+		if (loadSave) {
+			this.loadGame();
+		}
+
 		// Initialize systems
 		this.inputSystem.initialize();
 		this.uiManager.initialize();
@@ -122,6 +265,17 @@ class Game {
 		this.debugManager.onTeleport = (cityId) => this.teleportToCity(cityId);
 		this.debugManager.onReset = () => this.resetCaravanPosition();
 		this.debugManager.onResetCamera = () => this.resetCamera();
+
+		// Set up save button
+		const saveBtn = document.getElementById('save-game-btn');
+		saveBtn.addEventListener('click', () => this.saveGame());
+
+		// Set up quit button
+		const quitBtn = document.getElementById('quit-game-btn');
+		quitBtn.addEventListener('click', () => this.quitToMenu());
+
+		// Start auto-save
+		this.saveManager.startAutoSave(this.gameState, CitiesData, this.mercenarySystem);
 
 		// Initial UI update
 		this.uiManager.updateHUD();
@@ -590,6 +744,125 @@ class Game {
 		}
 	}
 
+	// Save game
+	saveGame() {
+		console.log('[Game] Save button clicked');
+		const success = this.saveManager.saveGame(this.gameState, CitiesData, this.mercenarySystem);
+		console.log('[Game] Save result:', success);
+		if (success) {
+			// Show brief notification
+			const saveBtn = document.getElementById('save-game-btn');
+			const originalText = saveBtn.textContent;
+			saveBtn.textContent = '✓ Saved!';
+			saveBtn.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
+
+			// Clear any existing timeout
+			if (this.saveButtonTimeout) {
+				clearTimeout(this.saveButtonTimeout);
+			}
+
+			this.saveButtonTimeout = setTimeout(() => {
+				saveBtn.textContent = originalText;
+				saveBtn.style.background = '';
+				this.saveButtonTimeout = null;
+			}, 2000);
+		}
+	}
+
+	// Load game
+	loadGame() {
+		const saveData = this.saveManager.loadGame();
+		if (!saveData) {
+			console.error('[Game] Failed to load save data');
+			return;
+		}
+
+		// Restore game state
+		this.saveManager.restoreGameState(saveData, this.gameState);
+		this.saveManager.restoreCities(saveData, CitiesData);
+		this.saveManager.restoreMercenaries(saveData, this.mercenarySystem);
+
+		// Update caravan position (fix: pass x, z instead of Vector3)
+		const pos = this.gameState.playerCaravan.position;
+		this.caravanManager.setPosition(pos.x, pos.z);
+
+		// Clear any pending save button timeout and reset button
+		if (this.saveButtonTimeout) {
+			clearTimeout(this.saveButtonTimeout);
+			this.saveButtonTimeout = null;
+		}
+		const saveBtn = document.getElementById('save-game-btn');
+		if (saveBtn) {
+			saveBtn.textContent = '💾 Save Game';
+			saveBtn.style.background = '';
+		}
+
+		// Update UI
+		this.uiManager.updateHUD();
+		this.uiManager.updateCaravanDetails();
+
+		console.log('[Game] Game loaded successfully');
+	}
+
+	// Quit to menu
+	quitToMenu() {
+		console.log('[Game] Quitting to menu...');
+
+		// Clear any pending save button timeout and reset button immediately
+		if (this.saveButtonTimeout) {
+			clearTimeout(this.saveButtonTimeout);
+			this.saveButtonTimeout = null;
+		}
+		const saveBtn = document.getElementById('save-game-btn');
+		if (saveBtn) {
+			saveBtn.textContent = '💾 Save Game';
+			saveBtn.style.background = '';
+		}
+
+		// Trigger manual save before quitting
+		this.saveManager.saveGame(this.gameState, CitiesData, this.mercenarySystem);
+
+		// Stop auto-save timer
+		this.saveManager.stopAutoSave();
+
+		// Stop animation loop
+		if (this.animationId) {
+			cancelAnimationFrame(this.animationId);
+			this.animationId = null;
+		}
+
+		// Clean up Three.js resources
+		if (this.renderer && this.renderer.domElement && this.renderer.domElement.parentNode) {
+			this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+		}
+
+		if (this.renderer) {
+			this.renderer.dispose();
+			this.renderer = null;
+		}
+
+		// Clear the scene
+		if (this.scene) {
+			this.scene.clear();
+			this.scene = null;
+		}
+
+		this.camera = null;
+
+		// Hide game elements
+		document.getElementById('game-container').style.display = 'none';
+		document.getElementById('hud').style.display = 'none';
+		document.getElementById('minimap-container').style.display = 'none';
+
+		// Show start screen
+		document.getElementById('start-screen').style.display = 'flex';
+
+		// Reset initialization flag so game can be restarted
+		this.isInitialized = false;
+
+		console.log('[Game] Returned to start screen');
+	}
+
 	// Set up event listeners
 	setupEventListeners() {
 		window.addEventListener('resize', () => this.onWindowResize());
@@ -674,7 +947,7 @@ class Game {
 let game;
 window.addEventListener('load', () => {
 	game = new Game();
-	game.initialize();
+	game.showStartScreen();
 });
 
 // Export for use in other modules

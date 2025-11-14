@@ -7,11 +7,65 @@
 		<link rel="stylesheet" href="src/css/styles.css" />
 	</head>
 	<body>
+		<!-- Start Screen -->
+		<div id="start-screen">
+			<div class="start-screen-content">
+				<h1 class="game-title">Caravan Adventures</h1>
+				<p class="game-subtitle">Trade across the lands, build your fortune</p>
+				<div class="start-buttons">
+					<button id="new-game-btn" class="start-btn">New Game</button>
+					<button id="load-game-btn" class="start-btn">Load Game</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Save Slot Selection Screen -->
+		<div id="slot-selection-screen" style="display: none">
+			<div class="slot-selection-content">
+				<h2 class="slot-title" id="slot-title">Select Save Slot</h2>
+				<div class="slot-list">
+					<div class="save-slot" data-slot="1">
+						<div class="slot-header">
+							<span class="slot-number">Slot 1</span>
+							<span class="slot-status" id="slot-1-status">Empty</span>
+						</div>
+						<div class="slot-details" id="slot-1-details" style="display: none">
+							<div class="slot-info">Gold: <span id="slot-1-gold">0</span></div>
+							<div class="slot-info">Day: <span id="slot-1-day">0</span></div>
+							<div class="slot-timestamp" id="slot-1-time"></div>
+						</div>
+					</div>
+					<div class="save-slot" data-slot="2">
+						<div class="slot-header">
+							<span class="slot-number">Slot 2</span>
+							<span class="slot-status" id="slot-2-status">Empty</span>
+						</div>
+						<div class="slot-details" id="slot-2-details" style="display: none">
+							<div class="slot-info">Gold: <span id="slot-2-gold">0</span></div>
+							<div class="slot-info">Day: <span id="slot-2-day">0</span></div>
+							<div class="slot-timestamp" id="slot-2-time"></div>
+						</div>
+					</div>
+					<div class="save-slot" data-slot="3">
+						<div class="slot-header">
+							<span class="slot-number">Slot 3</span>
+							<span class="slot-status" id="slot-3-status">Empty</span>
+						</div>
+						<div class="slot-details" id="slot-3-details" style="display: none">
+							<div class="slot-info">Gold: <span id="slot-3-gold">0</span></div>
+							<div class="slot-info">Day: <span id="slot-3-day">0</span></div>
+							<div class="slot-timestamp" id="slot-3-time"></div>
+						</div>
+					</div>
+				</div>
+				<button id="back-to-menu-btn" class="start-btn back-btn">Back to Menu</button>
+			</div>
+		</div>
 		<!-- Three.js Canvas Container -->
-		<div id="game-container"></div>
+		<div id="game-container" style="display: none"></div>
 
 		<!-- HUD Overlay -->
-		<div id="hud">
+		<div id="hud" style="display: none">
 			<div class="hud-panel clickable" id="hud-panel">
 				<h2>Caravan Status ▼</h2>
 				<div class="hud-stats">
@@ -33,10 +87,11 @@
 					</div>
 				</div>
 			</div>
+			<button id="save-game-btn" class="save-game-btn">💾 Save Game</button>
+			<button id="quit-game-btn" class="quit-game-btn">🚪 Quit to Menu</button>
 		</div>
-
 		<!-- Minimap -->
-		<div id="minimap-container">
+		<div id="minimap-container" style="display: none">
 			<h3>Map</h3>
 			<canvas id="minimap" width="200" height="200"></canvas>
 			<div class="minimap-controls">
@@ -353,6 +408,7 @@
 		<script src="src/systems/pathfindingSystem.js"></script>
 		<script src="src/systems/encounterSystem.js"></script>
 		<script src="src/systems/mercenarySystem.js"></script>
+		<script src="src/systems/saveManager.js"></script>
 
 		<!-- UI -->
 		<script src="src/ui/uiManager.js"></script>
