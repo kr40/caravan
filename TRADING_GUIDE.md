@@ -36,7 +36,7 @@ Forest Hold              |
                         🏺
 ```
 
-## Cities Overview (Total: 9 Cities)
+## Cities Overview (Total: 16 Cities)
 
 ### 1. **Rivertown** (Starting Area)
 
@@ -101,6 +101,62 @@ Forest Hold              |
 - **Produces**: Wool (9g), Grain (7g)
 - **Expensive**: Spices (115g), Tools (62g)
 - **Strategy**: Buy cheap basics, sell luxury/crafted goods
+
+### 9. **Silvermine** ⭐ NEW
+
+- **Position**: (-300, -300)
+- **Specialty**: Mountain Mining
+- **Produces**: Iron (16g), Tools (38g)
+- **Expensive**: Spices (125g), Grain (24g)
+- **Strategy**: Buy metals and tools cheap, sell food supplies
+
+### 10. **Laketown** ⭐ NEW
+
+- **Position**: (50, 350)
+- **Specialty**: Lakeside Fishing & Agriculture
+- **Produces**: Grain (6g), Wine (65g)
+- **Expensive**: Spices (118g), Tools (68g)
+- **Strategy**: Buy grain and wine cheap, sell metals and spices
+
+### 11. **Stormhaven** ⭐ NEW
+
+- **Position**: (300, -350)
+- **Specialty**: Coastal Fortress & Trade Port
+- **Produces**: Spices (72g), Tools (42g)
+- **Expensive**: Wool (30g), Grain (26g)
+- **Strategy**: Buy spices and tools, sell food supplies
+
+### 12. **Westwood** ⭐ NEW
+
+- **Position**: (-450, 350)
+- **Specialty**: Timber & Forestry
+- **Produces**: Wool (11g), Grain (9g)
+- **Expensive**: Tools (68g), Wine (98g)
+- **Strategy**: Buy wool and grain cheap, sell crafted goods and wine
+
+### 13. **Golden Fields** ⭐ NEW
+
+- **Position**: (-150, 350)
+- **Specialty**: Agricultural Breadbasket
+- **Produces**: Grain (4g), Wool (8g)
+- **Expensive**: Tools (72g), Wine (105g)
+- **Strategy**: Cheapest grain in realm! Buy basics, sell luxury goods
+
+### 14. **High Cliff** ⭐ NEW
+
+- **Position**: (350, 200)
+- **Specialty**: Hilltop Wine & Spice Gardens
+- **Produces**: Wine (58g), Spices (68g)
+- **Expensive**: Iron (44g), Grain (22g)
+- **Strategy**: Buy wine and spices, sell metals
+
+### 15. **Ironforge** ⭐ NEW
+
+- **Position**: (-350, -100)
+- **Specialty**: Master Smithing Center
+- **Produces**: Iron (14g), Tools (32g)
+- **Expensive**: Wine (115g), Grain (27g)
+- **Strategy**: Cheapest iron and tools! Buy metals, sell food and luxury goods
 
 ## Best Trading Routes
 
@@ -168,12 +224,12 @@ Forest Hold              |
 
 | Good   | Cheapest City      | Price | Most Expensive City | Price | Margin |
 |--------|--------------------|-------|---------------------|-------|--------|
-| Grain  | Rivertown          | 5g    | North Keep          | 25g   | 20g    |
-| Wool   | Forest Hold        | 9g    | North Keep          | 28g   | 19g    |
-| Iron   | North Keep         | 15g   | Sand Port           | 40g   | 25g    |
-| Tools  | North Keep         | 35g   | Vineyards           | 65g   | 30g    |
-| Wine   | Vineyards          | 60g   | North Keep          | 110g  | 50g 💰 |
-| Spices | Sand Port          | 70g   | Vineyards           | 120g  | 50g 💰 |
+| Grain  | Golden Fields      | 4g    | Ironforge           | 27g   | 23g    |
+| Wool   | Golden Fields      | 8g    | Stormhaven          | 30g   | 22g    |
+| Iron   | Ironforge          | 14g   | High Cliff          | 44g   | 30g    |
+| Tools  | Ironforge          | 32g   | Golden Fields       | 72g   | 40g 💰 |
+| Wine   | High Cliff         | 58g   | Ironforge           | 115g  | 57g 💰 |
+| Spices | High Cliff         | 68g   | Silvermine          | 125g  | 57g 💰 |
 
 ## Tips for Maximum Profit
 

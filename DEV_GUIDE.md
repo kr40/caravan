@@ -83,10 +83,15 @@ class YourManager {
 ```javascript
 gameState.addGold(amount)
 gameState.removeGold(amount)
+gameState.addFood(amount)
+gameState.removeFood(amount)
 gameState.addCargo(goodId, quantity, price)
 gameState.removeCargo(goodId, quantity)
 gameState.getTotalCargoCount()
 gameState.getCargoItem(goodId)
+gameState.incrementDay()
+gameState.addJourneyHistoryEntry(from, to)
+gameState.addTradeHistoryEntry(type, cityId, goodId, quantity, price)
 ```
 
 ### MarketSystem
@@ -103,6 +108,7 @@ marketSystem.canSell(goodId, quantity)
 caravanManager.setPosition(x, z)
 caravanManager.getPosition()
 caravanManager.update()  // Call in game loop
+caravanManager.setTarget(x, z, isOnRoad, speedBonus)
 ```
 
 ### CityManager
@@ -110,6 +116,7 @@ caravanManager.update()  // Call in game loop
 cityManager.getCityData(cityId)
 cityManager.getCityPosition(cityId)
 cityManager.isAtCity(position, threshold)
+cityManager.getCityIdFromPosition(position)
 ```
 
 ### UIManager
@@ -118,6 +125,82 @@ uiManager.updateHUD()
 uiManager.openCityModal(cityId)
 uiManager.closeCityModal()
 uiManager.showNotification(message, type)
+uiManager.openCaravanDetails()
+uiManager.closeCaravanDetails()
+```
+
+### SaveManager
+```javascript
+saveManager.saveGame(slotNumber)        // Save to slot 1, 2, or 3
+saveManager.loadGame(slotNumber)        // Load from slot
+saveManager.getSaveInfo(slotNumber)     // Get {slot, timestamp, gold, day}
+saveManager.getAllSavesInfo()           // Get info for all 3 slots
+saveManager.setCurrentSlot(slotNumber)  // Set active slot
+```
+
+### EncounterSystem
+```javascript
+encounterSystem.checkForEncounter(fromCity, toCity, mercenaryCount)
+encounterSystem.resolveEncounter(choice, mercenaryCount)
+// Returns: {success, message, goldLost?, foodLost?, mercenariesLost?}
+```
+
+### MercenarySystem
+```javascript
+mercenarySystem.getAvailableMercenaries()
+mercenarySystem.hireMercenary(mercenaryId, cost)
+mercenarySystem.getHiredMercenaries()
+mercenarySystem.getTotalMercenaryCount()
+mercenarySystem.getHireCost()
+mercenarySystem.dismissMercenary(mercenaryId)
+```
+
+### ResourceSystem
+```javascript
+resourceSystem.consumeFoodForTravel(distance, isOnRoad, foodMultiplier)
+// Returns: {success, foodConsumed}
+resourceSystem.getDayProgress()
+resourceSystem.update(deltaTime)  // Updates day/night cycle
+```
+
+### PathfindingSystem
+```javascript
+pathfindingSystem.findPath(fromCityId, toCityId)
+// Returns: {path: [cityIds], totalDistance, roads: [{type, distance}]}
+```
+
+### RoadManager
+```javascript
+roadManager.getRoadBetweenCities(cityId1, cityId2)
+// Returns: {type: 'road'|'bridge'|'mountain_pass', speedBonus, foodMultiplier}
+roadManager.getSpeedBonus(roadType)
+roadManager.getFoodMultiplier(roadType)
+```
+
+### DebugManager
+```javascript
+debugManager.toggleDebugConsole()  // Show/hide with ~ key
+debugManager.setGold(amount)
+debugManager.setFood(amount)
+debugManager.addGold(amount)
+debugManager.addFood(amount)
+debugManager.clearCargo()
+debugManager.fillCargo()
+debugManager.teleportToCity(cityId)
+debugManager.advanceDays(days)
+debugManager.resetGame()
+```
+
+### MinimapManager
+```javascript
+minimapManager.updateCaravanPosition(x, z)
+minimapManager.render()
+```
+
+### TooltipManager
+```javascript
+tooltipManager.showTooltip(cityName, distance)
+tooltipManager.hideTooltip()
 ```
 
 ## Events & Callbacks
@@ -144,9 +227,15 @@ Game.animate()
   ├─> update()
   │   ├─> caravanManager.update()
   │   │   └─> returns true if arrived
+  │   ├─> resourceSystem.update(deltaTime)
+  │   │   └─> updates day/night cycle
+  │   ├─> minimapManager.updateCaravanPosition()
   │   └─> handleArrival() if arrived
+  │       ├─> encounterSystem.checkForEncounter()
+  │       │   └─> show encounter modal if triggered
   │       └─> uiManager.openCityModal()
   └─> render()
+      ├─> minimapManager.render()
       └─> renderer.render(scene, camera)
 ```
 
@@ -198,14 +287,12 @@ game.cityManager.getCityPosition('rivertown')  // City position
 
 Always maintain this order in index.html:
 1. Three.js
-2. Config (uses nothing)
-3. Goods (uses nothing)
-4. Cities (uses nothing)
-5. GameState (uses THREE, Config)
-6. Managers (use THREE, GameState, Data)
-7. Systems (use GameState, Data)
-8. UI (use GameState, Systems)
-9. Main (uses everything)
+2. Data (config, goods, cities, roads, encounters, mercenaries)
+3. GameState (uses THREE, Config)
+4. Managers (world, caravan, city, road)
+5. Systems (market, input, encounter, mercenary, save, resource, pathfinding)
+6. UI (uiManager, debugManager, minimapManager, tooltipManager)
+7. Main (uses everything)
 
 ## Common Pitfalls
 
